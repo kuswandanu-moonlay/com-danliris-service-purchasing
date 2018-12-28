@@ -16,8 +16,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
         [MaxLength(1000)]
         public string ProductName { get; set; }
 
-        public double Quantity { get; set; }
-        public double BudgetPrice { get; set; }
+        public long Quantity { get; set; }
+        public long BudgetPrice { get; set; }
 
         [MaxLength(255)]
         public string UomId { get; set; }
@@ -33,6 +33,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel
 
         public string Status { get; set; }
 
+        [NotMapped]
         public bool IsUsed { get; set; }
 
         public virtual long GarmentPRId { get; set; }
