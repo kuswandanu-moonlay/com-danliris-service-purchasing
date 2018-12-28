@@ -94,6 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 				.AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
 				.AddTransient<PurchaseOrderMonitoringAllFacade>()
 				.AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
+				.AddTransient<IGarmentPurchaseRequestETLFacades, GarmentPurchaseRequestETLFacades>()
 				.AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
 				.AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
 				.AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
@@ -148,11 +149,13 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = Configuration.GetConnectionString(Constant.DEFAULT_CONNECTION) ?? Configuration[Constant.DEFAULT_CONNECTION];
+            string localGarmentMerchandiserConnectionString = Configuration.GetConnectionString(Constant.LOCAL_GARMENT_MERCHANDISER_CONNECTION) ?? Configuration[Constant.LOCAL_GARMENT_MERCHANDISER_CONNECTION];
             string env = Configuration.GetValue<string>(Constant.ASPNETCORE_ENVIRONMENT);
 			APIEndpoint.ConnectionString = Configuration.GetConnectionString("DefaultConnection") ?? Configuration["DefaultConnection"];
 
 			/* Register */
 			services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
+			services.AddDbContext<LocalGarmentMerchandiserDbContext>(options => options.UseSqlServer(localGarmentMerchandiserConnectionString));
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));

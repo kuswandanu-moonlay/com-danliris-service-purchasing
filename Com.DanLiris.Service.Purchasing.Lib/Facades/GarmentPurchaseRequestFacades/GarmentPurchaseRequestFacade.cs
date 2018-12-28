@@ -76,6 +76,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         {
             var a = this.dbSet.Where(p => p.Id == id)
                 .Include(p => p.Items)
+                .AsNoTracking()
                 .FirstOrDefault();
             return a;
         }
@@ -84,6 +85,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         {
             var a = this.dbSet.Where(p => p.RONo.Equals(rono))
                 .Include(p => p.Items)
+                .AsNoTracking()
                 .FirstOrDefault();
             return a;
         }
