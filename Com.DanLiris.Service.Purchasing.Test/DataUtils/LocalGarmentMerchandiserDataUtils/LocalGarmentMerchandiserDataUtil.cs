@@ -1,5 +1,6 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
+using Com.DanLiris.Service.Purchasing.Lib.Models.CoreModels;
 using Com.DanLiris.Service.Purchasing.Lib.Models.LocalGarmentMerchandiserModels;
 using Com.DanLiris.Service.Purchasing.Test.DataUtils.CoreDataUtils;
 using System;
@@ -14,26 +15,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.LocalGarmentMerchandise
         private readonly LocalGarmentMerchandiserDbContext merchandiserDbContext;
 
         private readonly UnitDataUtil unitDataUtil;
-        private readonly DivisionDataUtil divisionDataUtil;
         private readonly GarmentBuyerDataUtil garmentBuyerDataUtil;
         private readonly GarmentCategoryDataUtil garmentCategoryDataUtil;
         private readonly GarmentProductDataUtil garmentProductDataUtil;
-        private readonly UnitOfMeasurementDataUtil unitOfMeasurementDataUtil;
 
         public LocalGarmentMerchandiserDataUtil(LocalGarmentMerchandiserDbContext merchandiserDbContext, CoreDbContext coreDbContext)
         {
             this.merchandiserDbContext = merchandiserDbContext;
 
-            unitDataUtil = new UnitDataUtil(coreDbContext);
-            divisionDataUtil = new DivisionDataUtil(coreDbContext);
+            DivisionDataUtil divisionDataUtil = new DivisionDataUtil(coreDbContext);
+            unitDataUtil = new UnitDataUtil(coreDbContext, divisionDataUtil);
+
+            UnitOfMeasurementDataUtil unitOfMeasurementDataUtil = new UnitOfMeasurementDataUtil(coreDbContext);
+            garmentCategoryDataUtil = new GarmentCategoryDataUtil(coreDbContext, unitOfMeasurementDataUtil);
+            garmentProductDataUtil = new GarmentProductDataUtil(coreDbContext, unitOfMeasurementDataUtil);
+
             garmentBuyerDataUtil = new GarmentBuyerDataUtil(coreDbContext);
-            garmentCategoryDataUtil = new GarmentCategoryDataUtil(coreDbContext);
-            garmentProductDataUtil = new GarmentProductDataUtil(coreDbContext);
-            unitOfMeasurementDataUtil = new UnitOfMeasurementDataUtil(coreDbContext);
+        }
+
+        private (Units units, GarmentCategories garmentCategories, GarmentProducts garmentProducts, GarmentBuyers garmentBuyers) DataCore()
+        {
+            Units units = unitDataUtil.GetTestData();
+            GarmentCategories garmentCategories = garmentCategoryDataUtil.GetTestData();
+            GarmentProducts garmentProducts = garmentProductDataUtil.GetTestData();
+            GarmentBuyers garmentBuyers = garmentBuyerDataUtil.GetTestData();
+
+            return (units, garmentCategories, garmentProducts, garmentBuyers);
         }
 
         public (Porder Porder, Budget Budget) GetNewDataPorder()
         {
+            var dataCore = DataCore();
+
             Guid guid = Guid.NewGuid();
 
             var porder = new Porder
@@ -42,6 +55,11 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.LocalGarmentMerchandise
                 Ro = string.Concat("Ro-", guid.ToString()),
                 Po = string.Concat("Po-", guid.ToString()),
                 Nopo = string.Concat("Nopo-", guid.ToString()),
+                Buyer = dataCore.garmentBuyers.Code,
+                Konf = dataCore.units.Code,
+                Cat = dataCore.garmentCategories.Code,
+                Kodeb = dataCore.garmentProducts.Code,
+                Satb = dataCore.garmentProducts.UomUnit
             };
 
             var budget = new Budget

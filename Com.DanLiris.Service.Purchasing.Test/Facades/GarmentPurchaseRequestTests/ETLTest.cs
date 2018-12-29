@@ -92,7 +92,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
 
         private LocalGarmentMerchandiserDataUtil dataUtil(string testName)
         {
-            return new LocalGarmentMerchandiserDataUtil(merchandiserDbContext(testName));
+            return new LocalGarmentMerchandiserDataUtil(merchandiserDbContext(testName), coreDbContext(testName));
         }
 
         [Fact]

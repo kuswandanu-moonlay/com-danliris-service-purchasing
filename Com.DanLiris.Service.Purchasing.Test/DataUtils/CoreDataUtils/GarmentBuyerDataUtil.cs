@@ -36,6 +36,15 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.CoreDataUtils
                 LastModifiedBy = "",
                 LastModifiedUtc = DateTime.MinValue,
 
+                Address = string.Concat("Address-", ticks),
+                City = string.Concat("City-", ticks),
+                Code = string.Concat("Code-", ticks),
+                Contact = string.Concat("Contact-", ticks),
+                Country = string.Concat("Country-", ticks),
+                Name = string.Concat("Name-", ticks),
+                Npwp = string.Concat("Npwp-", ticks),
+                Tempo = null,
+                Type = string.Concat("Type-", ticks),
             };
         }
 

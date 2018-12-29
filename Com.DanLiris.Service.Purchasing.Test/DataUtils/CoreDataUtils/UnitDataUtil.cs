@@ -9,14 +9,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.CoreDataUtils
     public class UnitDataUtil
     {
         private readonly CoreDbContext coreDbContext;
+        private readonly DivisionDataUtil divisionDataUtil;
 
-        public UnitDataUtil(CoreDbContext coreDbContext)
+        public UnitDataUtil(CoreDbContext coreDbContext, DivisionDataUtil divisionDataUtil)
         {
             this.coreDbContext = coreDbContext;
+            this.divisionDataUtil = divisionDataUtil;
         }
 
         public Units GetNewData()
         {
+            Divisions division = divisionDataUtil.GetTestData();
+
             DateTime dateTime = DateTime.Now;
             long ticks = dateTime.Ticks;
 
@@ -40,9 +44,10 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.CoreDataUtils
                 Name = string.Concat("Name-", ticks),
 
                 Description = string.Concat("Description-", ticks),
-                DivisionId = (int)ticks,
-                DivisionName = string.Concat("DivisionName-", ticks),
-                DivisionCode = string.Concat("DivisionCode-", ticks),
+
+                DivisionId = division.Id,
+                DivisionName = division.Name,
+                DivisionCode = division.Code,
             };
         }
 

@@ -9,14 +9,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.CoreDataUtils
     public class GarmentProductDataUtil
     {
         private readonly CoreDbContext coreDbContext;
+        private readonly UnitOfMeasurementDataUtil unitOfMeasurementDataUtil;
 
-        public GarmentProductDataUtil(CoreDbContext coreDbContext)
+        public GarmentProductDataUtil(CoreDbContext coreDbContext, UnitOfMeasurementDataUtil unitOfMeasurementDataUtil)
         {
             this.coreDbContext = coreDbContext;
+            this.unitOfMeasurementDataUtil = unitOfMeasurementDataUtil;
         }
 
         public GarmentProducts GetNewData()
         {
+            UnitOfMeasurements uom = unitOfMeasurementDataUtil.GetTestData();
+
             DateTime dateTime = DateTime.Now;
             long ticks = dateTime.Ticks;
 
@@ -39,6 +43,16 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.CoreDataUtils
                 Code = string.Concat("Code-", ticks),
                 Name = string.Concat("Name-", ticks),
 
+                UomId = uom.Id,
+                UomUnit = uom.Unit,
+
+                Composition = string.Concat("Composition-", ticks),
+                Const = string.Concat("Const-", ticks),
+                ProductType = string.Concat("ProductType-", ticks),
+                Remark = string.Concat("Remark-", ticks),
+                Tags = string.Concat("Tags-", ticks),
+                Width = string.Concat("Width-", ticks),
+                Yarn = string.Concat("Yarn-", ticks),
             };
         }
 
