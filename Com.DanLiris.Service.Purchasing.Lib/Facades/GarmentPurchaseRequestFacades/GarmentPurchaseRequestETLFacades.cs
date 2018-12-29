@@ -1,4 +1,5 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.CoreModels;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.LocalGarmentMerchandiserModels;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
@@ -19,25 +20,42 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         private readonly IdentityService identityService;
 
         private readonly LocalGarmentMerchandiserDbContext merchandiserDbContext;
+        private readonly CoreDbContext coreDbContext;
 
         private readonly DbSet<Porder> porderDbSet;
         private readonly DbSet<Budget> budgetDbSet;
         private readonly DbSet<Porder1> porder1DbSet;
         private readonly DbSet<Budget1> budget1DbSet;
 
+        public readonly DbSet<Divisions> divisionsDbSet;
+        public readonly DbSet<GarmentBuyers> garmentBuyersDbSet;
+        public readonly DbSet<GarmentCategories> garmentCategoriesDbSet;
+        public readonly DbSet<GarmentProducts> garmentProductsDbSet;
+        public readonly DbSet<UnitOfMeasurements> unitOfMeasurementsDbSet;
+        public readonly DbSet<Units> unitsDbSet;
+
+
         private readonly IGarmentPurchaseRequestFacade purchaseRequestFacade;
 
-        public GarmentPurchaseRequestETLFacades(IServiceProvider serviceProvider, LocalGarmentMerchandiserDbContext merchandiserDbContext)
+        public GarmentPurchaseRequestETLFacades(IServiceProvider serviceProvider, LocalGarmentMerchandiserDbContext merchandiserDbContext, CoreDbContext coreDbContext)
         {
             this.serviceProvider = serviceProvider;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
 
             this.merchandiserDbContext = merchandiserDbContext;
+            this.coreDbContext = coreDbContext;
 
             porderDbSet = this.merchandiserDbContext.Set<Porder>();
             budgetDbSet = this.merchandiserDbContext.Set<Budget>();
             porder1DbSet = this.merchandiserDbContext.Set<Porder1>();
             budget1DbSet = this.merchandiserDbContext.Set<Budget1>();
+
+            divisionsDbSet = this.coreDbContext.Set<Divisions>();
+            garmentBuyersDbSet = this.coreDbContext.Set<GarmentBuyers>();
+            garmentCategoriesDbSet = this.coreDbContext.Set<GarmentCategories>();
+            garmentProductsDbSet = this.coreDbContext.Set<GarmentProducts>();
+            unitOfMeasurementsDbSet = this.coreDbContext.Set<UnitOfMeasurements>();
+            unitsDbSet = this.coreDbContext.Set<Units>();
 
             purchaseRequestFacade = serviceProvider.GetService<IGarmentPurchaseRequestFacade>();
         }
@@ -89,12 +107,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                                 Date = porder.TgValid,
                                 RONo = porder.Ro,
                                 ShipmentDate = porder.Shipment,
-                                UnitCode = porder.Konf,
+                                UnitCode = porder.Konf == "K.1" ? "C2A" :
+                                            porder.Konf == "K.2" ? "C2B" :
+                                            porder.Konf == "K.3" ? "C2C" :
+                                            porder.Konf == "K.4" ? "C1A" :
+                                            porder.Konf == "K.5" ? "C1B" :
+                                            porder.Konf,
 
                                 BudgetPrice = budget.Harga,
                                 CategoryCode = porder.Cat,
                                 PO_SerialNumber = porder.Nopo,
-                                ProductCode = porder.Kodeb,
+                                ProductCode = (porder.Kodeb ?? "").Trim() == (porder.Cat ?? "").Trim() ? string.Concat((porder.Kodeb ?? "").Trim(), "001") : (porder.Kodeb ?? "").Trim(),
                                 ProductRemark = (porder.Ketr + Environment.NewLine + porder.Kett + Environment.NewLine + porder.Kett2 + Environment.NewLine + porder.Kett3 + Environment.NewLine + porder.Kett4 + Environment.NewLine + porder.Kett5),
                                 Quantity = porder.Qty,
                                 UomUnit = (porder.Satb ?? "").Trim(),
@@ -127,16 +150,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                                  PRNo = string.Concat("PR", groupQuery.Key),
                                  Article = data.Article,
                                  BuyerCode = data.BuyerCode,
+                                 BuyerId = garmentBuyersDbSet.Where(x => x.Code == data.BuyerCode).Select(x => x.Id).FirstOrDefault().ToString(),
+                                 BuyerName = garmentBuyersDbSet.Where(x => x.Code == data.BuyerCode).Select(x => x.Name).FirstOrDefault(),
                                  Date = new DateTimeOffset(data.Date.GetValueOrDefault(), new TimeSpan(7, 0, 0)),
                                  IsPosted = true,
                                  RONo = groupQuery.Key,
                                  ShipmentDate = new DateTimeOffset(data.ShipmentDate.GetValueOrDefault(), new TimeSpan(7, 0, 0)),
-                                 UnitCode = data.UnitCode == "K.1" ? "C2A" :
-                                           data.UnitCode == "K.2" ? "C2B" :
-                                           data.UnitCode == "K.3" ? "C2C" :
-                                           data.UnitCode == "K.4" ? "C1A" :
-                                           data.UnitCode == "K.5" ? "C1B" :
-                                           data.UnitCode,
+                                 UnitCode = data.UnitCode,
+                                 UnitId = unitsDbSet.Where(x => x.Code == data.UnitCode).Select(x => x.Id).FirstOrDefault().ToString(),
+                                 UnitName = unitsDbSet.Where(x => x.Code == data.UnitCode).Select(x => x.Name).FirstOrDefault(),
 
                                  Items = groupQuery.Select(item => new GarmentPurchaseRequestItem
                                  {
@@ -155,13 +177,17 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
                                      BudgetPrice = (long)item.BudgetPrice,
                                      //CategoryCode = b.CategoryCode,
-                                     CategoryName = item.CategoryCode,
+                                     CategoryId = garmentCategoriesDbSet.Where(x => x.Code == data.CategoryCode).Select(x => x.Id).FirstOrDefault().ToString(),
+                                     CategoryName = garmentCategoriesDbSet.Where(x => x.Code == data.CategoryCode).Select(x => x.Name).FirstOrDefault(),
                                      PO_SerialNumber = item.PO_SerialNumber,
-                                     ProductCode = (item.ProductCode ?? "").Trim() == (item.CategoryCode ?? "").Trim() ? string.Concat((item.ProductCode ?? "").Trim(), "001") : (item.ProductCode ?? "").Trim(),
+                                     ProductCode = item.ProductCode,
+                                     ProductId = garmentProductsDbSet.Where(x => x.Code == item.ProductCode).Select(x => x.Id).FirstOrDefault().ToString(),
+                                     ProductName = garmentProductsDbSet.Where(x => x.Code == item.ProductCode).Select(x => x.Name).FirstOrDefault(),
                                      ProductRemark = item.ProductRemark,
                                      Quantity = (long)item.Quantity,
                                      Status = "Belum diterima Pembelian",
                                      UomUnit = item.UomUnit,
+                                     UomId = unitOfMeasurementsDbSet.Where(x => x.Unit == item.UomUnit).Select(x => x.Id).FirstOrDefault().ToString(),
                                  })
                                 .ToList()
                              };

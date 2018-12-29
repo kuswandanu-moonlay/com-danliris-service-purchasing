@@ -155,6 +155,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 
 			/* Register */
 			services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
+			services.AddDbContext<CoreDbContext>(options => options.UseSqlServer(connectionString));
 			services.AddDbContext<LocalGarmentMerchandiserDbContext>(options => options.UseSqlServer(localGarmentMerchandiserConnectionString));
             RegisterEndpoints();
             RegisterFacades(services);
