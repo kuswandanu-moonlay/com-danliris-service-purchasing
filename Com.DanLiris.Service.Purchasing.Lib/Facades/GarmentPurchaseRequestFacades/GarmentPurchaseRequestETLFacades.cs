@@ -210,7 +210,15 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 else
                 {
                     //data lama update?
-                    //await purchaseRequestFacade.Update((int)data.Id, data, identityService.Username);
+                    foreach (var item in data.Items)
+                    {
+                        var existingItem = existingDataByRONo.Items.FirstOrDefault(x => x.PO_SerialNumber == item.PO_SerialNumber && x.ProductId == item.ProductId);
+                        if (existingItem == null)
+                        {
+                            existingDataByRONo.Items.Add(item);
+                        }
+                    }
+                    await purchaseRequestFacade.Update((int)existingDataByRONo.Id, existingDataByRONo, identityService.Username);
                 }
             }
 
