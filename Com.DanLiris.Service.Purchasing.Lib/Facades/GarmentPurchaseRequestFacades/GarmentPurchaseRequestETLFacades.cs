@@ -81,47 +81,87 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
             if (tables.Trim() == "Budget & POrder")
             {
+                Query = from porder in porderDbSet
+                        join budget in budgetDbSet on porder.Nopo equals budget.Po
+                        let Ro = porder.Ro ?? ""
+                        where int.Parse(Ro.Substring(0, Ro.Length > 2 ? 2 : Ro.Length)) > 17
+                            && ((porder.Post ?? "").Trim().ToUpper() == "Y" || (porder.Post ?? "").Trim().ToUpper() == "M")
+                            && porder.TgValid.GetValueOrDefault() >= dateFilter
+                            && porder.Harga == 0
+                            && (porder.Nopo ?? "").Trim() != ""
+                            && (porder.CodeSpl ?? "").Trim() == ""
+                            && porder.Qty > 0
+                            && (string.IsNullOrWhiteSpace(buyer) ? true : porder.Buyer == buyer)
+                        select new ExtractedDataPOrder
+                        {
+                            UId = porder.IdPo.ToString(),
+                            CreatedBy = porder.Userin,
+                            CreatedUtc = porder.Tglin.GetValueOrDefault() + TimeSpan.Parse(string.IsNullOrWhiteSpace(porder.Jamin) ? "00:00:00" : porder.Jamin),
+                            LastModifiedBy = porder.Usered,
+                            LastModifiedUtc = porder.Tgled.GetValueOrDefault() + TimeSpan.Parse(string.IsNullOrWhiteSpace(porder.Jamed) ? "00:00:00" : porder.Jamed),
+
+                            Article = porder.Art,
+                            BuyerCode = porder.Buyer,
+                            Date = porder.TgValid,
+                            RONo = porder.Ro,
+                            ShipmentDate = porder.Shipment,
+                            UnitCode = porder.Konf == "K.1" ? "C2A" :
+                                        porder.Konf == "K.2" ? "C2B" :
+                                        porder.Konf == "K.3" ? "C2C" :
+                                        porder.Konf == "K.4" ? "C1A" :
+                                        porder.Konf == "K.5" ? "C1B" :
+                                        porder.Konf,
+
+                            BudgetPrice = budget.Harga,
+                            CategoryCode = porder.Cat,
+                            PO_SerialNumber = porder.Nopo,
+                            ProductCode = (porder.Kodeb ?? "").Trim() == (porder.Cat ?? "").Trim() ? string.Concat((porder.Kodeb ?? "").Trim(), "001") : (porder.Kodeb ?? "").Trim(),
+                            ProductRemark = (porder.Ketr + Environment.NewLine + porder.Kett + Environment.NewLine + porder.Kett2 + Environment.NewLine + porder.Kett3 + Environment.NewLine + porder.Kett4 + Environment.NewLine + porder.Kett5),
+                            Quantity = porder.Qty,
+                            UomUnit = (porder.Satb ?? "").Trim(),
+                        };
             }
             else if (tables.Trim() == "Budget1 & POrder1")
             {
                 Query = from porder in porder1DbSet
-                            join budget in budget1DbSet on porder.Nopo equals budget.Po
-                            let Ro = porder.Ro ?? ""
-                            where int.Parse(Ro.Substring(0, Ro.Length > 2 ? 2 : Ro.Length)) > 17
-                                && ((porder.Post ?? "").Trim() == "Y" || (porder.Post ?? "").Trim() == "M")
-                                && porder.Tglin.GetValueOrDefault() >= dateFilter
-                                && porder.Harga == 0
-                                && (porder.Nopo ?? "").Trim() != ""
-                                && (porder.CodeSpl ?? "").Trim() == ""
-                                && porder.Qty > 0
-                                && (string.IsNullOrWhiteSpace(buyer) ? true : porder.Buyer == buyer)
-                            select new ExtractedDataPOrder
-                            {
-                                CreatedBy = porder.Userin,
-                                CreatedUtc = porder.Tglin.GetValueOrDefault() + TimeSpan.Parse(string.IsNullOrWhiteSpace(porder.Jamin) ? "00:00:00" : porder.Jamin),
-                                LastModifiedBy = porder.Usered,
-                                LastModifiedUtc = porder.Tgled.GetValueOrDefault() + TimeSpan.Parse(string.IsNullOrWhiteSpace(porder.Jamed) ? "00:00:00" : porder.Jamed),
+                        join budget in budget1DbSet on porder.Nopo equals budget.Po
+                        let Ro = porder.Ro ?? ""
+                        where int.Parse(Ro.Substring(0, Ro.Length > 2 ? 2 : Ro.Length)) > 17
+                            && ((porder.Post ?? "").Trim().ToUpper() == "Y" || (porder.Post ?? "").Trim().ToUpper() == "M")
+                            && porder.TgValid.GetValueOrDefault() >= dateFilter
+                            && porder.Harga == 0
+                            && (porder.Nopo ?? "").Trim() != ""
+                            && (porder.CodeSpl ?? "").Trim() == ""
+                            && porder.Qty > 0
+                            && (string.IsNullOrWhiteSpace(buyer) ? true : porder.Buyer == buyer)
+                        select new ExtractedDataPOrder
+                        {
+                            UId = porder.Id.ToString(),
+                            CreatedBy = porder.Userin,
+                            CreatedUtc = porder.Tglin.GetValueOrDefault() + TimeSpan.Parse(string.IsNullOrWhiteSpace(porder.Jamin) ? "00:00:00" : porder.Jamin),
+                            LastModifiedBy = porder.Usered,
+                            LastModifiedUtc = porder.Tgled.GetValueOrDefault() + TimeSpan.Parse(string.IsNullOrWhiteSpace(porder.Jamed) ? "00:00:00" : porder.Jamed),
 
-                                Article = porder.Art,
-                                BuyerCode = porder.Buyer,
-                                Date = porder.TgValid,
-                                RONo = porder.Ro,
-                                ShipmentDate = porder.Shipment,
-                                UnitCode = porder.Konf == "K.1" ? "C2A" :
-                                            porder.Konf == "K.2" ? "C2B" :
-                                            porder.Konf == "K.3" ? "C2C" :
-                                            porder.Konf == "K.4" ? "C1A" :
-                                            porder.Konf == "K.5" ? "C1B" :
-                                            porder.Konf,
+                            Article = porder.Art,
+                            BuyerCode = porder.Buyer,
+                            Date = porder.TgValid,
+                            RONo = porder.Ro,
+                            ShipmentDate = porder.Shipment,
+                            UnitCode = porder.Konf == "K.1" ? "C2A" :
+                                        porder.Konf == "K.2" ? "C2B" :
+                                        porder.Konf == "K.3" ? "C2C" :
+                                        porder.Konf == "K.4" ? "C1A" :
+                                        porder.Konf == "K.5" ? "C1B" :
+                                        porder.Konf,
 
-                                BudgetPrice = budget.Harga,
-                                CategoryCode = porder.Cat,
-                                PO_SerialNumber = porder.Nopo,
-                                ProductCode = (porder.Kodeb ?? "").Trim() == (porder.Cat ?? "").Trim() ? string.Concat((porder.Kodeb ?? "").Trim(), "001") : (porder.Kodeb ?? "").Trim(),
-                                ProductRemark = (porder.Ketr + Environment.NewLine + porder.Kett + Environment.NewLine + porder.Kett2 + Environment.NewLine + porder.Kett3 + Environment.NewLine + porder.Kett4 + Environment.NewLine + porder.Kett5),
-                                Quantity = porder.Qty,
-                                UomUnit = (porder.Satb ?? "").Trim(),
-                            };
+                            BudgetPrice = budget.Harga,
+                            CategoryCode = porder.Cat,
+                            PO_SerialNumber = porder.Nopo,
+                            ProductCode = (porder.Kodeb ?? "").Trim() == (porder.Cat ?? "").Trim() ? string.Concat((porder.Kodeb ?? "").Trim(), "001") : (porder.Kodeb ?? "").Trim(),
+                            ProductRemark = (porder.Ketr + Environment.NewLine + porder.Kett + Environment.NewLine + porder.Kett2 + Environment.NewLine + porder.Kett3 + Environment.NewLine + porder.Kett4 + Environment.NewLine + porder.Kett5),
+                            Quantity = porder.Qty,
+                            UomUnit = (porder.Satb ?? "").Trim(),
+                        };
             }
 
             return Query;
@@ -162,6 +202,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
                                  Items = groupQuery.Select(item => new GarmentPurchaseRequestItem
                                  {
+                                     UId = item.UId,
                                      Active = true,
                                      CreatedAgent = "manager",
                                      CreatedBy = item.CreatedBy,
@@ -209,10 +250,9 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 }
                 else
                 {
-                    //data lama update?
                     foreach (var item in data.Items)
                     {
-                        var existingItem = existingDataByRONo.Items.FirstOrDefault(x => x.PO_SerialNumber == item.PO_SerialNumber && x.ProductId == item.ProductId);
+                        var existingItem = existingDataByRONo.Items.FirstOrDefault(x => x.UId == item.UId);
                         if (existingItem == null)
                         {
                             existingDataByRONo.Items.Add(item);
@@ -228,6 +268,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
     public class ExtractedDataPOrder
     {
+        public string UId { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedUtc { get; set; }
         public string LastModifiedBy { get; set; }

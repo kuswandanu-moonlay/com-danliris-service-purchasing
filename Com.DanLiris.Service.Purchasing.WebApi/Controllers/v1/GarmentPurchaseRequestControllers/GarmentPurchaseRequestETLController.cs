@@ -28,15 +28,15 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         private string ApiVersion = "1.0.0";
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
-        private readonly IGarmentPurchaseRequestFacade facade;
+        private readonly IGarmentPurchaseRequestFacade purchaseRequestFacade;
         private readonly IGarmentPurchaseRequestETLFacades purchaseRequestETLFacade;
         private readonly IdentityService identityService;
 
-        public GarmentPurchaseRequestETLController(IServiceProvider serviceProvider, IMapper mapper, IGarmentPurchaseRequestFacade facade, IGarmentPurchaseRequestETLFacades purchaseRequestETLFacade)
+        public GarmentPurchaseRequestETLController(IServiceProvider serviceProvider, IMapper mapper, IGarmentPurchaseRequestFacade purchaseRequestFacade, IGarmentPurchaseRequestETLFacades purchaseRequestETLFacade)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;
-            this.facade = facade;
+            this.purchaseRequestFacade = purchaseRequestFacade;
             this.purchaseRequestETLFacade = purchaseRequestETLFacade;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
@@ -48,7 +48,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
             {
                 identityService.Username = User.Claims.Single(p => p.Type.Equals("username")).Value;
 
-                var Data = facade.Read(page, size, order, keyword, filter);
+                var Data = purchaseRequestFacade.Read(page, size, order, keyword, filter);
 
                 var newData = mapper.Map<List<GarmentPurchaseRequestViewModel>>(Data.Item1);
 
@@ -95,7 +95,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         {
             try
             {
-                var result = facade.ReadById(id);
+                var result = purchaseRequestFacade.ReadById(id);
                 GarmentPurchaseRequestViewModel viewModel = mapper.Map<GarmentPurchaseRequestViewModel>(result);
                 if (viewModel == null)
                 {
