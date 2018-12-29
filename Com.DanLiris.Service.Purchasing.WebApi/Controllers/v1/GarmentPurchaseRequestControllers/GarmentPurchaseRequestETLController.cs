@@ -29,10 +29,10 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentPurchaseR
         public readonly IServiceProvider serviceProvider;
         private readonly IMapper mapper;
         private readonly IGarmentPurchaseRequestFacade purchaseRequestFacade;
-        private readonly IGarmentPurchaseRequestETLFacades purchaseRequestETLFacade;
+        private readonly IGarmentPurchaseRequestETLFacade purchaseRequestETLFacade;
         private readonly IdentityService identityService;
 
-        public GarmentPurchaseRequestETLController(IServiceProvider serviceProvider, IMapper mapper, IGarmentPurchaseRequestFacade purchaseRequestFacade, IGarmentPurchaseRequestETLFacades purchaseRequestETLFacade)
+        public GarmentPurchaseRequestETLController(IServiceProvider serviceProvider, IMapper mapper, IGarmentPurchaseRequestFacade purchaseRequestFacade, IGarmentPurchaseRequestETLFacade purchaseRequestETLFacade)
         {
             this.serviceProvider = serviceProvider;
             this.mapper = mapper;

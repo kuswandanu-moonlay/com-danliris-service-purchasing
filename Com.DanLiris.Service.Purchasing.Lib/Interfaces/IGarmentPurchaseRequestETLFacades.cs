@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Interfaces
 {
-    public interface IGarmentPurchaseRequestETLFacades
+    public interface IGarmentPurchaseRequestETLFacade
     {
         Task<int> Run(string tables, string month, string year, BuyerViewModel buyer);
     }

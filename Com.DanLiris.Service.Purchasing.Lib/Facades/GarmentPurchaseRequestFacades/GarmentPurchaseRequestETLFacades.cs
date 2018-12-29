@@ -5,7 +5,6 @@ using Com.DanLiris.Service.Purchasing.Lib.Models.LocalGarmentMerchandiserModels;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
 using Com.DanLiris.Service.Purchasing.Lib.ViewModels.NewIntegrationViewModel;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -14,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades
 {
-    public class GarmentPurchaseRequestETLFacades : IGarmentPurchaseRequestETLFacades
+    public class GarmentPurchaseRequestETLFacade : IGarmentPurchaseRequestETLFacade
     {
         private readonly IServiceProvider serviceProvider;
         private readonly IdentityService identityService;
@@ -37,7 +36,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
 
         private readonly IGarmentPurchaseRequestFacade purchaseRequestFacade;
 
-        public GarmentPurchaseRequestETLFacades(IServiceProvider serviceProvider, LocalGarmentMerchandiserDbContext merchandiserDbContext, CoreDbContext coreDbContext)
+        public GarmentPurchaseRequestETLFacade(IServiceProvider serviceProvider, LocalGarmentMerchandiserDbContext merchandiserDbContext, CoreDbContext coreDbContext)
         {
             this.serviceProvider = serviceProvider;
             identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
@@ -57,16 +56,23 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             unitOfMeasurementsDbSet = this.coreDbContext.Set<UnitOfMeasurements>();
             unitsDbSet = this.coreDbContext.Set<Units>();
 
-            purchaseRequestFacade = serviceProvider.GetService<IGarmentPurchaseRequestFacade>();
+            purchaseRequestFacade = (IGarmentPurchaseRequestFacade)serviceProvider.GetService(typeof(IGarmentPurchaseRequestFacade));
         }
 
         public async Task<int> Run(string tables = "", string month = "", string year = "", BuyerViewModel buyer = null)
         {
-            IQueryable<ExtractedDataPOrder> extract = Extract(tables, month, year, buyer == null ? "" : buyer.Code);
-            List<GarmentPurchaseRequest> transform = Transform(extract);
-            int load = await Load(transform);
+            try
+            {
+                IQueryable<ExtractedDataPOrder> extract = Extract(tables, month, year, buyer == null ? "" : buyer.Code);
+                List<GarmentPurchaseRequest> transform = Transform(extract);
+                int load = await Load(transform);
 
-            return load;
+                return load;
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
 
         private IQueryable<ExtractedDataPOrder> Extract(string tables, string month, string year, string buyer)
@@ -75,7 +81,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
             if (!DateTime.TryParseExact(string.Concat(month, " ", year), "MMMM yyyy", new CultureInfo("en-EN"), DateTimeStyles.None, out dateFilter))
                 dateFilter = DateTime.MaxValue;
 
-            dateFilter = dateFilter.AddDays(26);
+            //dateFilter = dateFilter.AddDays(26);
 
             IQueryable<ExtractedDataPOrder> Query = null;
 
@@ -84,14 +90,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 Query = from porder in porderDbSet
                         join budget in budgetDbSet on porder.Nopo equals budget.Po
                         let Ro = porder.Ro ?? ""
-                        where int.Parse(Ro.Substring(0, Ro.Length > 2 ? 2 : Ro.Length)) > 17
-                            && ((porder.Post ?? "").Trim().ToUpper() == "Y" || (porder.Post ?? "").Trim().ToUpper() == "M")
-                            && porder.TgValid.GetValueOrDefault() >= dateFilter
-                            && porder.Harga == 0
-                            && (porder.Nopo ?? "").Trim() != ""
-                            && (porder.CodeSpl ?? "").Trim() == ""
-                            && porder.Qty > 0
-                            && (string.IsNullOrWhiteSpace(buyer) ? true : porder.Buyer == buyer)
+                        //where int.Parse(Ro.Substring(0, Ro.Length > 2 ? 2 : Ro.Length)) > 17
+                        //    && ((porder.Post ?? "").Trim().ToUpper() == "Y" || (porder.Post ?? "").Trim().ToUpper() == "M")
+                        //    && porder.TgValid.GetValueOrDefault() >= dateFilter
+                        //    && porder.Harga == 0
+                        //    && (porder.Nopo ?? "").Trim() != ""
+                        //    && (porder.CodeSpl ?? "").Trim() == ""
+                        //    && porder.Qty > 0
+                        //    && (string.IsNullOrWhiteSpace(buyer) ? true : porder.Buyer == buyer)
                         select new ExtractedDataPOrder
                         {
                             UId = porder.IdPo.ToString(),

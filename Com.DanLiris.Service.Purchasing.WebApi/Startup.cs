@@ -94,7 +94,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
 				.AddTransient<IUnitPaymentPriceCorrectionNoteFacade, UnitPaymentPriceCorrectionNoteFacade>()
 				.AddTransient<PurchaseOrderMonitoringAllFacade>()
 				.AddTransient<IGarmentPurchaseRequestFacade, GarmentPurchaseRequestFacade>()
-				.AddTransient<IGarmentPurchaseRequestETLFacades, GarmentPurchaseRequestETLFacades>()
+				.AddTransient<IGarmentPurchaseRequestETLFacade, GarmentPurchaseRequestETLFacade>()
 				.AddTransient<IGarmentInternalPurchaseOrderFacade, GarmentInternalPurchaseOrderFacade>()
 				.AddTransient<IGarmentInvoice, GarmentInvoiceFacade>()
 				.AddTransient<IGarmentInternNoteFacade, GarmentInternNoteFacades>()
