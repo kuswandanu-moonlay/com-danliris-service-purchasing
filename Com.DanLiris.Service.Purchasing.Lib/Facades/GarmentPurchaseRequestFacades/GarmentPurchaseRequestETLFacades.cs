@@ -79,7 +79,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
         {
             DateTime dateFilter;
             if (!DateTime.TryParseExact(string.Concat(month, " ", year), "MMMM yyyy", new CultureInfo("en-EN"), DateTimeStyles.None, out dateFilter))
-                dateFilter = DateTime.MaxValue;
+                dateFilter = DateTime.Now;
 
             //dateFilter = dateFilter.AddDays(26);
 
@@ -90,14 +90,14 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                 Query = from porder in porderDbSet
                         join budget in budgetDbSet on porder.Nopo equals budget.Po
                         let Ro = porder.Ro ?? ""
-                        //where int.Parse(Ro.Substring(0, Ro.Length > 2 ? 2 : Ro.Length)) > 17
-                        //    && ((porder.Post ?? "").Trim().ToUpper() == "Y" || (porder.Post ?? "").Trim().ToUpper() == "M")
-                        //    && porder.TgValid.GetValueOrDefault() >= dateFilter
-                        //    && porder.Harga == 0
-                        //    && (porder.Nopo ?? "").Trim() != ""
-                        //    && (porder.CodeSpl ?? "").Trim() == ""
-                        //    && porder.Qty > 0
-                        //    && (string.IsNullOrWhiteSpace(buyer) ? true : porder.Buyer == buyer)
+                        where int.Parse(Ro.Substring(0, Ro.Length > 2 ? 2 : Ro.Length)) > 17
+                            && ((porder.Post ?? "").Trim().ToUpper() == "Y" || (porder.Post ?? "").Trim().ToUpper() == "M")
+                            && porder.TgValid.GetValueOrDefault() >= dateFilter
+                            && porder.Harga == 0
+                            && !string.IsNullOrWhiteSpace(porder.Nopo)
+                            && string.IsNullOrWhiteSpace(porder.CodeSpl)
+                            && porder.Qty > 0
+                            && (string.IsNullOrWhiteSpace(buyer) ? true : porder.Buyer == buyer)
                         select new ExtractedDataPOrder
                         {
                             UId = porder.IdPo.ToString(),
@@ -110,7 +110,7 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             BuyerCode = porder.Buyer,
                             Date = porder.TgValid,
                             RONo = porder.Ro,
-                            ShipmentDate = porder.Shipment,
+                            ShipmentDate = porder.ShipDate,
                             UnitCode = porder.Konf == "K.1" ? "C2A" :
                                         porder.Konf == "K.2" ? "C2B" :
                                         porder.Konf == "K.3" ? "C2C" :
@@ -136,8 +136,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             && ((porder.Post ?? "").Trim().ToUpper() == "Y" || (porder.Post ?? "").Trim().ToUpper() == "M")
                             && porder.TgValid.GetValueOrDefault() >= dateFilter
                             && porder.Harga == 0
-                            && (porder.Nopo ?? "").Trim() != ""
-                            && (porder.CodeSpl ?? "").Trim() == ""
+                            && !string.IsNullOrWhiteSpace(porder.Nopo)
+                            && string.IsNullOrWhiteSpace(porder.CodeSpl)
                             && porder.Qty > 0
                             && (string.IsNullOrWhiteSpace(buyer) ? true : porder.Buyer == buyer)
                         select new ExtractedDataPOrder
@@ -196,15 +196,19 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                                  PRNo = string.Concat("PR", groupQuery.Key),
                                  Article = data.Article,
                                  BuyerCode = data.BuyerCode,
-                                 BuyerId = garmentBuyersDbSet.Where(x => x.Code == data.BuyerCode).Select(x => x.Id).FirstOrDefault().ToString(),
-                                 BuyerName = garmentBuyersDbSet.Where(x => x.Code == data.BuyerCode).Select(x => x.Name).FirstOrDefault(),
-                                 Date = new DateTimeOffset(data.Date.GetValueOrDefault(), new TimeSpan(7, 0, 0)),
+                                 //BuyerId = garmentBuyersDbSet.Where(x => x.Code == data.BuyerCode).Select(x => x.Id).FirstOrDefault().ToString(),
+                                 //BuyerName = garmentBuyersDbSet.Where(x => x.Code == data.BuyerCode).Select(x => x.Name).FirstOrDefault(),
+                                 BuyerId = "",
+                                 BuyerName = "",
+                                 Date = new DateTimeOffset(data.Date ?? new DateTime(1753, 01, 01), new TimeSpan(7, 0, 0)),
                                  IsPosted = true,
                                  RONo = groupQuery.Key,
-                                 ShipmentDate = new DateTimeOffset(data.ShipmentDate.GetValueOrDefault(), new TimeSpan(7, 0, 0)),
+                                 ShipmentDate = new DateTimeOffset(data.ShipmentDate ?? new DateTime(1753, 01, 01), new TimeSpan(7, 0, 0)),
                                  UnitCode = data.UnitCode,
-                                 UnitId = unitsDbSet.Where(x => x.Code == data.UnitCode).Select(x => x.Id).FirstOrDefault().ToString(),
-                                 UnitName = unitsDbSet.Where(x => x.Code == data.UnitCode).Select(x => x.Name).FirstOrDefault(),
+                                 //UnitId = unitsDbSet.Where(x => x.Code == data.UnitCode).Select(x => x.Id).FirstOrDefault().ToString(),
+                                 //UnitName = unitsDbSet.Where(x => x.Code == data.UnitCode).Select(x => x.Name).FirstOrDefault(),
+                                 UnitId = "",
+                                 UnitName = "",
 
                                  Items = groupQuery.Select(item => new GarmentPurchaseRequestItem
                                  {
@@ -222,37 +226,69 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                                      LastModifiedUtc = item.LastModifiedUtc,
                                      IsUsed = false,
 
-                                     BudgetPrice = (long)item.BudgetPrice,
-                                     //CategoryCode = b.CategoryCode,
-                                     CategoryId = garmentCategoriesDbSet.Where(x => x.Code == data.CategoryCode).Select(x => x.Id).FirstOrDefault().ToString(),
-                                     CategoryName = garmentCategoriesDbSet.Where(x => x.Code == data.CategoryCode).Select(x => x.Name).FirstOrDefault(),
+                                     BudgetPrice = (long)item.BudgetPrice.GetValueOrDefault(),
+                                     //CategoryCode = item.CategoryCode,
+                                     CategoryName = item.CategoryCode,
+                                     //CategoryId = garmentCategoriesDbSet.Where(x => x.Code == data.CategoryCode).Select(x => x.Id).FirstOrDefault().ToString(),
+                                     //CategoryName = garmentCategoriesDbSet.Where(x => x.Code == data.CategoryCode).Select(x => x.Name).FirstOrDefault(),
                                      PO_SerialNumber = item.PO_SerialNumber,
                                      ProductCode = item.ProductCode,
-                                     ProductId = garmentProductsDbSet.Where(x => x.Code == item.ProductCode).Select(x => x.Id).FirstOrDefault().ToString(),
-                                     ProductName = garmentProductsDbSet.Where(x => x.Code == item.ProductCode).Select(x => x.Name).FirstOrDefault(),
+                                     //ProductId = garmentProductsDbSet.Where(x => x.Code == item.ProductCode).Select(x => x.Id).FirstOrDefault().ToString(),
+                                     //ProductName = garmentProductsDbSet.Where(x => x.Code == item.ProductCode).Select(x => x.Name).FirstOrDefault(),
                                      ProductRemark = item.ProductRemark,
-                                     Quantity = (long)item.Quantity,
+                                     Quantity = (long)item.Quantity.GetValueOrDefault(),
                                      Status = "Belum diterima Pembelian",
                                      UomUnit = item.UomUnit,
-                                     UomId = unitOfMeasurementsDbSet.Where(x => x.Unit == item.UomUnit).Select(x => x.Id).FirstOrDefault().ToString(),
+                                     //UomId = unitOfMeasurementsDbSet.Where(x => x.Unit == item.UomUnit).Select(x => x.Id).FirstOrDefault().ToString(),
                                  })
-                                .ToList()
+                                 .ToList()
                              };
 
-            List<GarmentPurchaseRequest> transformedDatas = new List<GarmentPurchaseRequest>();
-            transformedDatas.AddRange(GroupQuery);
+            List<GarmentPurchaseRequest> transformedDatas = GroupQuery.ToList();
+
+            HashSet<string> buyerCodes = new HashSet<string>(transformedDatas.Select(x => x.BuyerCode));
+            var buyers = garmentBuyersDbSet.Where(x => buyerCodes.Contains(x.Code));
+            HashSet<string> unitCodes = new HashSet<string>(transformedDatas.Select(x => x.UnitCode));
+            var units = unitsDbSet.Where(x => buyerCodes.Contains(x.Code));
+            HashSet<string> categoryCodes = new HashSet<string>(transformedDatas.SelectMany(x => x.Items.Select(y => y.CategoryName)));
+            var categories = garmentCategoriesDbSet.Where(x => buyerCodes.Contains(x.Code));
+            HashSet<string> productCodes = new HashSet<string>(transformedDatas.SelectMany(x => x.Items.Select(y => y.ProductCode)));
+            var products = garmentProductsDbSet.Where(x => buyerCodes.Contains(x.Code));
+            HashSet<string> uomUnits = new HashSet<string>(transformedDatas.SelectMany(x => x.Items.Select(y => y.UomUnit)));
+            var uoms = unitOfMeasurementsDbSet.Where(x => buyerCodes.Contains(x.Unit));
+
+            foreach (var transformedData in transformedDatas)
+            {
+                transformedData.BuyerId = buyers.Where(x => x.Code == transformedData.BuyerCode).Select(x => x.Id).FirstOrDefault().ToString();
+                transformedData.BuyerName = buyers.Where(x => x.Code == transformedData.BuyerCode).Select(x => x.Name).FirstOrDefault();
+
+                transformedData.UnitId = units.Where(x => x.Code == transformedData.UnitCode).Select(x => x.Id).FirstOrDefault().ToString();
+                transformedData.UnitName = units.Where(x => x.Code == transformedData.UnitCode).Select(x => x.Name).FirstOrDefault();
+
+                foreach (var item in transformedData.Items)
+                {
+                    item.CategoryId = categories.Where(x => x.Code == item.CategoryName).Select(x => x.Id).FirstOrDefault().ToString();
+                    item.CategoryName = categories.Where(x => x.Code == item.CategoryName).Select(x => x.Name).FirstOrDefault();
+
+                    item.ProductId = products.Where(x => x.Code == item.ProductCode).Select(x => x.Id).FirstOrDefault().ToString();
+                    item.ProductName = products.Where(x => x.Code == item.ProductCode).Select(x => x.Name).FirstOrDefault();
+
+                    item.UomId = uoms.Where(x => x.Unit == item.UomUnit).Select(x => x.Id).FirstOrDefault().ToString();
+                }
+            }
 
             return transformedDatas;
         }
 
         private async Task<int> Load(List<GarmentPurchaseRequest> transformedDatas)
         {
+            int Loaded = 0;
             foreach (var data in transformedDatas)
             {
                 var existingDataByRONo = purchaseRequestFacade.ReadByRONo(data.RONo);
                 if (existingDataByRONo == null)
                 {
-                    await purchaseRequestFacade.Create(data, identityService.Username);
+                    Loaded = await purchaseRequestFacade.Create(data, identityService.Username);
                 }
                 else
                 {
@@ -264,11 +300,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                             existingDataByRONo.Items.Add(item);
                         }
                     }
-                    await purchaseRequestFacade.Update((int)existingDataByRONo.Id, existingDataByRONo, identityService.Username);
+                    Loaded = await purchaseRequestFacade.Update((int)existingDataByRONo.Id, existingDataByRONo, identityService.Username);
                 }
             }
 
-            return 0;
+            return Loaded;
         }
     }
 

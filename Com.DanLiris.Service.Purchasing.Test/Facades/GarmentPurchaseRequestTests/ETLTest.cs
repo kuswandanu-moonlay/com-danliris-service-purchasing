@@ -1,6 +1,7 @@
 ﻿using Com.DanLiris.Service.Purchasing.Lib;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFacades;
 using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
+using Com.DanLiris.Service.Purchasing.Lib.Models.CoreModels;
 using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentPurchaseRequestModel;
 using Com.DanLiris.Service.Purchasing.Lib.Models.LocalGarmentMerchandiserModels;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
@@ -110,11 +111,22 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentPurchaseRequestTes
             GarmentPurchaseRequestETLFacade facade = new GarmentPurchaseRequestETLFacade(GetServiceProvider().Object, merchandiserDbContext(GetCurrentMethod()), coreDbContext(GetCurrentMethod()));
 
             var data = dataUtil(GetCurrentMethod()).GetTestDataPorder();
-            var asd = merchandiserDbContext(GetCurrentMethod()).Set<Porder>().FirstOrDefault();
 
             var result = await facade.Run("Budget & POrder");
 
-            Assert.Equal(0, result);
+            Assert.NotEqual(0, result);
+        }
+
+        [Fact]
+        public async void Should_Success_Run_ETL_POrder1()
+        {
+            GarmentPurchaseRequestETLFacade facade = new GarmentPurchaseRequestETLFacade(GetServiceProvider().Object, merchandiserDbContext(GetCurrentMethod()), coreDbContext(GetCurrentMethod()));
+
+            var data = dataUtil(GetCurrentMethod()).GetTestDataPorder1();
+
+            var result = await facade.Run("Budget1 & POrder1");
+
+            Assert.NotEqual(0, result);
         }
     }
 }

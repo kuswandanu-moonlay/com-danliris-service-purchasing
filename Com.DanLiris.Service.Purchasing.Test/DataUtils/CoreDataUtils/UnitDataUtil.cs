@@ -55,7 +55,8 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.CoreDataUtils
         {
             var data = GetNewData();
 
-
+            coreDbContext.Set<Units>().Add(data);
+            coreDbContext.SaveChanges();
 
             return data;
         }

@@ -13,6 +13,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.LocalGarmentMerchandise
     public class LocalGarmentMerchandiserDataUtil
     {
         private readonly LocalGarmentMerchandiserDbContext merchandiserDbContext;
+        private readonly CoreDbContext coreDbContext;
 
         private readonly UnitDataUtil unitDataUtil;
         private readonly GarmentBuyerDataUtil garmentBuyerDataUtil;
@@ -22,6 +23,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.LocalGarmentMerchandise
         public LocalGarmentMerchandiserDataUtil(LocalGarmentMerchandiserDbContext merchandiserDbContext, CoreDbContext coreDbContext)
         {
             this.merchandiserDbContext = merchandiserDbContext;
+            this.coreDbContext = coreDbContext;
 
             DivisionDataUtil divisionDataUtil = new DivisionDataUtil(coreDbContext);
             unitDataUtil = new UnitDataUtil(coreDbContext, divisionDataUtil);
@@ -52,14 +54,18 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.LocalGarmentMerchandise
             var porder = new Porder
             {
                 IdPo = guid,
-                Ro = string.Concat("Ro-", guid.ToString()),
+                Ro = string.Concat(DateTime.Now.ToString("yyMMdd"), "-Ro-"),
                 Po = string.Concat("Po-", guid.ToString()),
                 Nopo = string.Concat("Nopo-", guid.ToString()),
                 Buyer = dataCore.garmentBuyers.Code,
                 Konf = dataCore.units.Code,
                 Cat = dataCore.garmentCategories.Code,
                 Kodeb = dataCore.garmentProducts.Code,
-                Satb = dataCore.garmentProducts.UomUnit
+                Satb = dataCore.garmentProducts.UomUnit,
+                Qty = 10,
+                Harga = 0,
+                Post = "Y",
+                TgValid = DateTime.Now.AddDays(10)
             };
 
             var budget = new Budget
@@ -72,14 +78,25 @@ namespace Com.DanLiris.Service.Purchasing.Test.DataUtils.LocalGarmentMerchandise
 
         public (Porder1 Porder1, Budget1 Budget1) GetNewDataPorder1()
         {
+            var dataCore = DataCore();
+
             Guid guid = Guid.NewGuid();
 
             var porder = new Porder1
             {
                 Id = guid,
-                Ro = string.Concat("Ro-", guid.ToString()),
+                Ro = string.Concat(DateTime.Now.ToString("yyMMdd"), "-Ro-"),
                 Po = string.Concat("Po-", guid.ToString()),
                 Nopo = string.Concat("Nopo-", guid.ToString()),
+                Buyer = dataCore.garmentBuyers.Code,
+                Konf = dataCore.units.Code,
+                Cat = dataCore.garmentCategories.Code,
+                Kodeb = dataCore.garmentProducts.Code,
+                Satb = dataCore.garmentProducts.UomUnit,
+                Qty = 10,
+                Harga = 0,
+                Post = "Y",
+                TgValid = DateTime.Now.AddDays(10)
             };
 
             var budget = new Budget1
