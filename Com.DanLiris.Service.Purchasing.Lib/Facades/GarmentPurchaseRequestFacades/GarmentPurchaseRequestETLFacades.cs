@@ -198,8 +198,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                                  BuyerCode = data.BuyerCode,
                                  //BuyerId = garmentBuyersDbSet.Where(x => x.Code == data.BuyerCode).Select(x => x.Id).FirstOrDefault().ToString(),
                                  //BuyerName = garmentBuyersDbSet.Where(x => x.Code == data.BuyerCode).Select(x => x.Name).FirstOrDefault(),
-                                 BuyerId = "",
-                                 BuyerName = "",
                                  Date = new DateTimeOffset(data.Date ?? new DateTime(1753, 01, 01), new TimeSpan(7, 0, 0)),
                                  IsPosted = true,
                                  RONo = groupQuery.Key,
@@ -207,8 +205,6 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentPurchaseRequestFaca
                                  UnitCode = data.UnitCode,
                                  //UnitId = unitsDbSet.Where(x => x.Code == data.UnitCode).Select(x => x.Id).FirstOrDefault().ToString(),
                                  //UnitName = unitsDbSet.Where(x => x.Code == data.UnitCode).Select(x => x.Name).FirstOrDefault(),
-                                 UnitId = "",
-                                 UnitName = "",
 
                                  Items = groupQuery.Select(item => new GarmentPurchaseRequestItem
                                  {
