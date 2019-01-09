@@ -131,17 +131,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             await garmentInternNoteDataUtil.GetTestData();
         }
 
-        [Fact]
+        //[Fact]
         public async void Should_Success_GetReport()
+        {
+            GarmentPurchaseOrderMonitoringAllFacade facade = new GarmentPurchaseOrderMonitoringAllFacade(_dbContext(GetCurrentMethod()));
+
+            await Task.Run(() => dataUtil(GetCurrentMethod()));
+
+            var result = facade.GetReport("", "", "", "", "", "", "", "", DateTime.Now, DateTime.Now, "", 1, 25, "{}", 7);
+
+            Assert.NotEqual(0, result.Item2);
+        }
+
+        [Fact]
+        public void Should_Success_GetReport_NoResult()
+        {
+            GarmentPurchaseOrderMonitoringAllFacade facade = new GarmentPurchaseOrderMonitoringAllFacade(_dbContext(GetCurrentMethod()));
+
+            var result = facade.GetReport("", "", "", "", "", "", "", "", DateTime.Now, DateTime.Now, "", 1, 25, "{}", 7);
+
+            Assert.Equal(0, result.Item2);
+        }
+
+        [Fact]
+        public async void Should_Success_GenerateExcel()
         {
             GarmentPurchaseOrderMonitoringAllFacade facade = new GarmentPurchaseOrderMonitoringAllFacade(_dbContext(GetCurrentMethod()));
 
             //await Task.Run(() => dataUtil(GetCurrentMethod()));
 
-            var result = facade.GetReport("", "", "", "", "", "", "", "", DateTime.Now, DateTime.Now, "", 1, 25, "{}", 7);
+            var result = facade.GenerateExcel("", "", "", "", "", "", "", "", DateTime.Now, DateTime.Now, "", 7);
 
-            Assert.Equal(0, result.Item2);
-            //Assert.NotEqual(0, result.Item2);
+            Assert.IsType(typeof(System.IO.MemoryStream), result);
         }
     }
 }

@@ -286,8 +286,10 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Satuan Beli", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Harga Total", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Mata Uang", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Kurs", DataType = typeof(double) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Harga Total IDR", DataType = typeof(double) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Kurs", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Kurs", DataType = typeof(string) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Harga Total IDR", DataType = typeof(double) });
+            result.Columns.Add(new DataColumn() { ColumnName = "Harga Total IDR", DataType = typeof(string) });
             result.Columns.Add(new DataColumn() { ColumnName = "Kode Supplier", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nama Supplier", DataType = typeof(String) });
 
@@ -321,7 +323,8 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
             result.Columns.Add(new DataColumn() { ColumnName = "Nilai PPN", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "No PPH", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Tanggal PPH", DataType = typeof(String) });
-            result.Columns.Add(new DataColumn() { ColumnName = "Nama PPH", DataType = typeof(String) });
+            //result.Columns.Add(new DataColumn() { ColumnName = "Nama PPH", DataType = typeof(String) });
+            result.Columns.Add(new DataColumn() { ColumnName = "NamaPPH", DataType = typeof(String) });
             result.Columns.Add(new DataColumn() { ColumnName = "Rate PPH", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "Nilai PPH", DataType = typeof(double) });
             result.Columns.Add(new DataColumn() { ColumnName = "No Nota Intern", DataType = typeof(String) });
