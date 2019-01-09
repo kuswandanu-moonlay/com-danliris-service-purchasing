@@ -17,15 +17,13 @@ using System.Globalization;
 
 namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades
 {
-    public class GarmentPurchaseOrderMonitoringAllFacade 
+    public class GarmentPurchaseOrderMonitoringAllFacade : IGarmentPurchaseOrderMonitoringAllFacade
     {
         private readonly PurchasingDbContext dbContext;
-        public readonly IServiceProvider serviceProvider;
         private readonly DbSet<GarmentInternalPurchaseOrder> dbSet;
 
-        public GarmentPurchaseOrderMonitoringAllFacade(IServiceProvider serviceProvider, PurchasingDbContext dbContext)
+        public GarmentPurchaseOrderMonitoringAllFacade(PurchasingDbContext dbContext)
         {
-            this.serviceProvider = serviceProvider;
             this.dbContext = dbContext;
             this.dbSet = dbContext.Set<GarmentInternalPurchaseOrder>();
         }

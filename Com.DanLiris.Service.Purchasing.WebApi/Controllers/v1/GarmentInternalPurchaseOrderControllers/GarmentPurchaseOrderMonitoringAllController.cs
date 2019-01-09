@@ -1,18 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.GarmentInternalPurchaseOrderViewModel;
 using AutoMapper;
-using Com.DanLiris.Service.Purchasing.Lib.Models.GarmentInternalPurchaseOrderModel;
-using Com.DanLiris.Service.Purchasing.Lib.ViewModels.IntegrationViewModel;
-using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrderFacades;
 using Com.DanLiris.Service.Purchasing.WebApi.Helpers;
 using Com.DanLiris.Service.Purchasing.Lib.Services;
-using Com.Moonlay.NetCore.Lib.Service;
+using Com.DanLiris.Service.Purchasing.Lib.Interfaces;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalPurchaseOrderControllers
 {
@@ -23,23 +16,22 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentInternalP
     public class GarmentPurchaseOrderMonitoringAllController : Controller
     {
         private string ApiVersion = "1.0.0";
-        private readonly IMapper _mapper;
-        private readonly GarmentPurchaseOrderMonitoringAllFacade _facade;
+        private readonly IGarmentPurchaseOrderMonitoringAllFacade _facade;
         private readonly IdentityService identityService;
-        public GarmentPurchaseOrderMonitoringAllController(IMapper mapper, GarmentPurchaseOrderMonitoringAllFacade facade, IdentityService identityService)
+        public GarmentPurchaseOrderMonitoringAllController(IServiceProvider serviceProvider, IGarmentPurchaseOrderMonitoringAllFacade facade)
         {
-            _mapper = mapper;
             _facade = facade;
-            this.identityService = identityService;
+            identityService = (IdentityService)serviceProvider.GetService(typeof(IdentityService));
         }
 
         [HttpGet]
         public IActionResult GetReportAll(string unit, string category, string epoNo, string roNo, string prNo, string doNo, string supplier, string staff, DateTime? dateFrom, DateTime? dateTo, string status, int page, int size, string Order = "{}")
         {
-            int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
-            string accept = Request.Headers["Accept"];
             try
             {
+                int offset = Convert.ToInt32(Request.Headers["x-timezone-offset"]);
+                string accept = Request.Headers["Accept"];
+
                 var data = _facade.GetReport(unit, category, epoNo, roNo, prNo, doNo, supplier, staff, dateFrom, dateTo, status, page, size, Order, offset);
 
                 return Ok(new
