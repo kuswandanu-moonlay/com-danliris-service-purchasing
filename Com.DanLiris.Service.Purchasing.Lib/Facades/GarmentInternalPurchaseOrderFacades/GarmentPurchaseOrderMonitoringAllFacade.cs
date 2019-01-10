@@ -81,25 +81,25 @@ namespace Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentInternalPurchaseOrd
                          join aa in dbContext.GarmentCorrectionNotes on corrItem.GCorrectionId equals aa.Id into bb
                          from corr in bb.DefaultIfEmpty()
 
-                         where a.IsDeleted == false && b.IsDeleted == false
-                               && c.IsDeleted == false && d.IsDeleted == false
-                               && epo.IsDeleted == false && epoItem.IsDeleted == false
-                               && DO.IsDeleted == false && doItem.IsDeleted == false && doDetail.IsDeleted == false
-                               && urn.IsDeleted == false && urnItem.IsDeleted == false
-                               && upo.IsDeleted == false && upoItem.IsDeleted == false && upoDetail.IsDeleted == false
-                               && corr.IsDeleted == false && corrItem.IsDeleted == false
-                               && a.PRDate.AddHours(offset).Date >= DateFrom.Date
-                               && a.PRDate.AddHours(offset).Date <= DateTo.Date
-                               && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
-                               && b.CategoryName == (string.IsNullOrWhiteSpace(category) ? b.CategoryName : category)
-                               && epo.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? epo.EPONo : epoNo)
-                               && a.RONo == (string.IsNullOrWhiteSpace(roNo) ? a.RONo : roNo)
-                               && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(prNo) ? b.PO_SerialNumber : prNo)
-                               && DO.DONo == (string.IsNullOrWhiteSpace(doNo) ? DO.DONo : doNo)
-                               && epo.SupplierCode == (string.IsNullOrWhiteSpace(supplier) ? epo.SupplierCode : supplier)
-                               && b.Status == (string.IsNullOrWhiteSpace(status) ? b.Status : status)
-                               && a.CreatedBy == (string.IsNullOrWhiteSpace(staff) ? a.CreatedBy : staff)
-                               && b.Quantity > 0
+                         //where a.IsDeleted == false && b.IsDeleted == false
+                         //      && c.IsDeleted == false && d.IsDeleted == false
+                         //      && epo.IsDeleted == false && epoItem.IsDeleted == false
+                         //      && DO.IsDeleted == false && doItem.IsDeleted == false && doDetail.IsDeleted == false
+                         //      && urn.IsDeleted == false && urnItem.IsDeleted == false
+                         //      && upo.IsDeleted == false && upoItem.IsDeleted == false && upoDetail.IsDeleted == false
+                         //      && corr.IsDeleted == false && corrItem.IsDeleted == false
+                         //      && a.PRDate.AddHours(offset).Date >= DateFrom.Date
+                         //      && a.PRDate.AddHours(offset).Date <= DateTo.Date
+                         //      && a.UnitCode == (string.IsNullOrWhiteSpace(unit) ? a.UnitCode : unit)
+                         //      && b.CategoryName == (string.IsNullOrWhiteSpace(category) ? b.CategoryName : category)
+                         //      && epo.EPONo == (string.IsNullOrWhiteSpace(epoNo) ? epo.EPONo : epoNo)
+                         //      && a.RONo == (string.IsNullOrWhiteSpace(roNo) ? a.RONo : roNo)
+                         //      && b.PO_SerialNumber == (string.IsNullOrWhiteSpace(prNo) ? b.PO_SerialNumber : prNo)
+                         //      && DO.DONo == (string.IsNullOrWhiteSpace(doNo) ? DO.DONo : doNo)
+                         //      && epo.SupplierCode == (string.IsNullOrWhiteSpace(supplier) ? epo.SupplierCode : supplier)
+                         //      && b.Status == (string.IsNullOrWhiteSpace(status) ? b.Status : status)
+                         //      && a.CreatedBy == (string.IsNullOrWhiteSpace(staff) ? a.CreatedBy : staff)
+                         //      && b.Quantity > 0
 
                          select new GarmentPurchaseOrderMonitoringAllViewModel
                          {

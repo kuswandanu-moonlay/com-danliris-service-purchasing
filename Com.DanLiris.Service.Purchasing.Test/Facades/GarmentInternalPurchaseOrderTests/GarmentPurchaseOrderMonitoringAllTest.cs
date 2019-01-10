@@ -71,7 +71,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var serviceProviderMock = new Mock<IServiceProvider>();
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IdentityService)))
-                .Returns(new IdentityService { Username = "Username" });
+                .Returns(new IdentityService { Username = USERNAME });
             serviceProviderMock
                 .Setup(x => x.GetService(typeof(IHttpClientService)))
                 .Returns(httpClientService.Object);
@@ -98,7 +98,7 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             return dbContext;
         }
 
-        private async void dataUtil(string testName)
+        private async Task<(string unit, string category, string epoNo, string roNo, string prNo, string doNo, string supplier, string staff)> dataUtil(string testName)
         {
             var garmentPurchaseRequestFacade = new GarmentPurchaseRequestFacade(_dbContext(testName));
             var garmentPurchaseRequestDataUtil = new GarmentPurchaseRequestDataUtil(garmentPurchaseRequestFacade);
@@ -113,32 +113,38 @@ namespace Com.DanLiris.Service.Purchasing.Test.Facades.GarmentInternalPurchaseOr
             var garmentDeliveryOrderDataUtil = new GarmentDeliveryOrderDataUtil(garmentDeliveryOrderFacade, garmentExternalPurchaseOrderDataUtil);
 
             var garmentCorrectionNotePriceFacade = new GarmentCorrectionNotePriceFacade(GetServiceProvider(), _dbContext(testName));
-            var garmentCorrectionNoteDataUtil = new GarmentCorrectionNoteDataUtil(garmentCorrectionNotePriceFacade, garmentDeliveryOrderDataUtil);
+            var garmentCorrectionNotePriceDataUtil = new GarmentCorrectionNoteDataUtil(garmentCorrectionNotePriceFacade, garmentDeliveryOrderDataUtil);
+            await garmentCorrectionNotePriceDataUtil.GetTestDataKoreksiHargaTotal();
 
             var garmentBeacukaiFacade = new GarmentBeacukaiFacade(_dbContext(testName), GetServiceProvider());
             var garmentBeacukaiDataUtil = new GarmentBeacukaiDataUtil(garmentDeliveryOrderDataUtil , garmentBeacukaiFacade);
+            await garmentBeacukaiDataUtil.GetTestData(USERNAME);
 
             var garmentUnitReceiptNoteFacade = new GarmentUnitReceiptNoteFacade(GetServiceProvider(), _dbContext(testName));
             var garmentUnitReceiptNoteDataUtil = new GarmentUnitReceiptNoteDataUtil(garmentUnitReceiptNoteFacade, garmentDeliveryOrderDataUtil);
+            await garmentUnitReceiptNoteDataUtil.GetTestData();
 
             var garmentInvoiceFacade = new GarmentInvoiceFacade(_dbContext(testName), ServiceProvider);
             var garmentInvoiceDetailDataUtil = new GarmentInvoiceDetailDataUtil();
             var garmentInvoiceItemDataUtil = new GarmentInvoiceItemDataUtil(garmentInvoiceDetailDataUtil);
             var garmentInvoieDataUtil = new GarmentInvoiceDataUtil(garmentInvoiceItemDataUtil, garmentInvoiceDetailDataUtil, garmentDeliveryOrderDataUtil, garmentInvoiceFacade);
+            await garmentInvoieDataUtil.GetTestData(USERNAME);
 
             var facade = new GarmentInternNoteFacades(_dbContext(testName), GetServiceProvider());
             var garmentInternNoteDataUtil = new GarmentInternNoteDataUtil(garmentInvoieDataUtil, facade);
             await garmentInternNoteDataUtil.GetTestData();
+
+            return ("", "", "", "", "", "", "", "");
         }
 
-        //[Fact]
+        [Fact]
         public async void Should_Success_GetReport()
         {
             GarmentPurchaseOrderMonitoringAllFacade facade = new GarmentPurchaseOrderMonitoringAllFacade(_dbContext(GetCurrentMethod()));
 
-            await Task.Run(() => dataUtil(GetCurrentMethod()));
+            var data = await dataUtil(GetCurrentMethod());
 
-            var result = facade.GetReport("", "", "", "", "", "", "", "", DateTime.Now, DateTime.Now, "", 1, 25, "{}", 7);
+            var result = facade.GetReport(data.unit, data.category, data.epoNo, data.roNo, data.prNo, data.doNo, data.supplier, data.staff, DateTime.Now, DateTime.Now, "", 1, 25, "{}", 7);
 
             Assert.NotEqual(0, result.Item2);
         }
