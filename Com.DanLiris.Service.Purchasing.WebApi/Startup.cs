@@ -44,6 +44,8 @@ using Newtonsoft.Json.Serialization;
 using System.Text;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.GarmentExternalPurchaseOrderFacade.Reports;
 using Com.DanLiris.Service.Purchasing.Lib.Facades.PurchaseRequestFacades;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi
 {
@@ -153,6 +155,9 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             ClassMap<UnitPaymentCorrectionNoteViewModel>.Register();
         }
 
+        public static readonly LoggerFactory MyLoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((_, __) => true, true) });
+
+
         #endregion Register
 
         public void ConfigureServices(IServiceCollection services)
@@ -162,7 +167,7 @@ namespace Com.DanLiris.Service.Purchasing.WebApi
             APIEndpoint.ConnectionString = Configuration.GetConnectionString("DefaultConnection") ?? Configuration["DefaultConnection"];
 
             /* Register */
-            services.AddDbContext<PurchasingDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<PurchasingDbContext>(options => options.UseLoggerFactory(MyLoggerFactory).UseSqlServer(connectionString));
             RegisterEndpoints();
             RegisterFacades(services);
             RegisterServices(services, env.Equals("Test"));
