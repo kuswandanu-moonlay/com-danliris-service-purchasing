@@ -122,6 +122,11 @@ namespace Com.DanLiris.Service.Purchasing.Lib
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+            modelBuilder.Entity<Hawhaw>()
+                .HasIndex(i => i.Nomor)
+                .IsUnique()
+                .HasFilter("[IsDeleted] = 0");
         }
     }
 }
