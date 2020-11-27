@@ -14,6 +14,7 @@ using Com.Moonlay.NetCore.Lib.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
 
 namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiControllers
 {
@@ -30,7 +31,11 @@ namespace Com.DanLiris.Service.Purchasing.WebApi.Controllers.v1.GarmentBeacukaiC
 		private readonly IGarmentDeliveryOrderFacade DOfacade;
 		private readonly IdentityService identityService;
 
-		public GarmentBeacukaiController(IServiceProvider serviceProvider, IMapper mapper, IGarmentBeacukaiFacade facade, IGarmentDeliveryOrderFacade DOfacade)
+        public GarmentBeacukaiController(IHttpClientFactory clientFactory)
+        {
+        }
+
+        public GarmentBeacukaiController(IServiceProvider serviceProvider, IMapper mapper, IGarmentBeacukaiFacade facade, IGarmentDeliveryOrderFacade DOfacade)
 		{
 			this.serviceProvider = serviceProvider;
 			this.mapper = mapper;
